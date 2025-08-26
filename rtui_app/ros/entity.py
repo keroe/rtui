@@ -23,6 +23,9 @@ class RosEntityType(IntEnum):
             RosEntityType.ActionType,
         }
 
+    def has_monitor(self) -> bool:
+        return self in {RosEntityType.Topic}
+
 
 @dataclass(frozen=True, order=True)
 class RosEntity:

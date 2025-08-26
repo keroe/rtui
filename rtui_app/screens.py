@@ -3,7 +3,7 @@ from __future__ import annotations
 from textual.app import ComposeResult
 from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import Screen
-from textual.widgets import Footer
+from textual.widgets import Footer, Static
 
 from .ros import RosClient, RosEntity, RosEntityType
 from .widgets import RosEntityInfoPanel, RosEntityListPanel, RosTypeDefinitionPanel
@@ -15,6 +15,7 @@ class RosEntityInspection(Screen):
     _list_panel: RosEntityListPanel
     _info_panel: RosEntityInfoPanel
     _definition_panel: RosTypeDefinitionPanel | None = None
+    _monitor_panel: Static | None = None
 
     DEFAULT_CSS = """
     .container {
@@ -52,6 +53,8 @@ class RosEntityInspection(Screen):
         )
         if entity_type.has_definition():
             self._definition_panel = RosTypeDefinitionPanel(ros)
+        if entity_type.has_monitor():
+            self._monitor_panel = Static("Monitor panel (not implemented)")
 
     def set_entity_name(self, name: str) -> None:
         self._entity_name = name
@@ -69,11 +72,16 @@ class RosEntityInspection(Screen):
             yield self._list_panel
 
             with Vertical(id="main"):
-                if self._definition_panel is None:
-                    with ScrollableContainer():
-                        yield self._info_panel
-                else:
+                if self._definition_panel:
                     with ScrollableContainer(id="main-upper", classes="main-half"):
                         yield self._info_panel
                     with ScrollableContainer(classes="main-half"):
                         yield self._definition_panel
+                if self._monitor_panel:
+                    with ScrollableContainer(id="main-upper", classes="main-half"):
+                        yield self._info_panel
+                    with ScrollableContainer(classes="main-half"):
+                        yield self._monitor_panel
+                else:
+                    with ScrollableContainer():
+                        yield self._info_panel
