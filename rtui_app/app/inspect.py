@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from functools import partial
 
 from textual.app import App
 from textual.binding import Binding
@@ -38,7 +39,10 @@ class InspectApp(App):
 
         for t in RosEntityType:
             if self._ros.available(t):
-                self.add_mode(t.name, RosEntityInspection(ros, t))
+                ros_entity_inspection_class = partial(
+                    RosEntityInspection, ros=ros, entity_type=t
+                )
+                self.add_mode(t.name, ros_entity_inspection_class)
 
     def show_ros_entity(self, entity: RosEntity, append_history: bool = True) -> None:
         self.switch_mode(entity.type.name)
