@@ -36,26 +36,17 @@ class InspectApp(App):
         self._ros = ros
         self._init_target = init_target
 
-        # Register modes with factory lambdas to pass arguments (Textual 5.x)
         for t in RosEntityType:
             if self._ros.available(t):
-                self.add_mode(t.name, lambda t=t: RosEntityInspection(self._ros, t))
+                self.add_mode(t.name, RosEntityInspection(ros, t))
 
     def show_ros_entity(self, entity: RosEntity, append_history: bool = True) -> None:
         self.switch_mode(entity.type.name)
-        # Store entity name for use in compose_screen
-        self._pending_entity_name = entity.name
+        screen: RosEntityInspection = self.screen
+        screen.set_entity_name(entity.name)
+
         if append_history:
             self._history.append(entity)
-    def compose_screen(self, mode: str):
-        # Called by Textual when switching modes; create the screen with correct args
-        entity_type = self._entity_type_map.get(mode)
-        ros = getattr(self, '_ros', None)
-        screen = RosEntityInspection(ros, entity_type)
-        # If entity name is set, update it
-        if hasattr(self, '_pending_entity_name'):
-            screen.set_entity_name(self._pending_entity_name)
-        return screen
 
     def on_mount(self) -> None:
         self.switch_mode(self._init_target.name)
