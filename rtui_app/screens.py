@@ -5,8 +5,13 @@ from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import Screen
 from textual.widgets import Footer, Static
 
-from .ros import RosClient, RosEntity, RosEntityType
-from .widgets import RosEntityInfoPanel, RosEntityListPanel, RosTypeDefinitionPanel
+from rtui_app.ros import RosClient, RosEntity, RosEntityType
+from rtui_app.widgets import (
+    RosEntityInfoPanel,
+    RosEntityListPanel,
+    RosTypeDefinitionPanel,
+    RosEntityMonitorPanel,
+)
 
 
 class RosEntityInspection(Screen):
@@ -15,7 +20,7 @@ class RosEntityInspection(Screen):
     _list_panel: RosEntityListPanel
     _info_panel: RosEntityInfoPanel
     _definition_panel: RosTypeDefinitionPanel | None = None
-    _monitor_panel: Static | None = None
+    _monitor_panel: RosEntityMonitorPanel | None = None
 
     DEFAULT_CSS = """
     .container {
@@ -54,7 +59,7 @@ class RosEntityInspection(Screen):
         if entity_type.has_definition():
             self._definition_panel = RosTypeDefinitionPanel(ros)
         if entity_type.has_monitor():
-            self._monitor_panel = Static("Monitor panel (not implemented)")
+            self._monitor_panel = RosEntityMonitorPanel(ros, None)
 
     def set_entity_name(self, name: str) -> None:
         self._entity_name = name
@@ -62,6 +67,8 @@ class RosEntityInspection(Screen):
         self._info_panel.set_entity(entity)
         if self._definition_panel is not None:
             self._definition_panel.set_entity(entity)
+        if self._monitor_panel is not None:
+            self._monitor_panel.set_entity(entity)
 
     def force_update(self) -> None:
         self._list_panel.update_items()

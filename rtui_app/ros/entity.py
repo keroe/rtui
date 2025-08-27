@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import IntEnum, auto
+from textual.containers import Vertical
 
 UNKNOWN_TYPE = "<unknown type>"
 
@@ -76,8 +77,10 @@ class TreeKey:
 
 class RosEntityInfo(ABC):
     @abstractmethod
-    def to_textual(self) -> str:
-        ...
+    def to_textual(self) -> str: ...
+
+    @abstractmethod
+    def to_widgets(self) -> Vertical: ...
 
 
 def _common_link(name: str, callback: str) -> str:
@@ -176,6 +179,9 @@ class TopicInfo(RosEntityInfo):
 
 [b]Subscribers:[/b]{_common_entities_with_type(self.subscribers, "node_link", "msg_type_link")}
 """
+
+    def to_widgets(self) -> Vertical:
+        return Vertical(self.to_textual())
 
 
 @dataclass(repr=True)

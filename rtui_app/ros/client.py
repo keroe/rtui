@@ -3,7 +3,7 @@ from __future__ import annotations
 from os import environ
 from typing import Generator
 
-from .entity import (
+from rtui_app.ros.entity import (
     ActionInfo,
     ActionTypeInfo,
     MsgTypeInfo,
@@ -16,7 +16,7 @@ from .entity import (
     TopicInfo,
     TreeKey,
 )
-from .interface import RosInterface, RosVersion
+from rtui_app.ros.interface import RosInterface, RosVersion
 
 
 class RosClient:
@@ -186,3 +186,26 @@ class RosClient:
             return self.list_action_types()
         else:
             raise ValueError(f"invalid entity type: {entity_type}")
+
+    # hz monitor
+    def start_hz_monitor(
+        self,
+        topic: str,
+        on_stats,
+        on_status,
+        *,
+        window_size: int = 200,
+        period: float = 1.0,
+    ) -> HzSession:
+        """Start a Hz monitor attached to the existing self.node."""
+        return start_hz_monitor(
+            self.node,
+            topic,
+            on_stats,
+            on_status,
+            window_size=window_size,
+            period=period,
+        )
+
+    def stop_hz_monitor(self, session: HzSession) -> None:
+        session.stop()

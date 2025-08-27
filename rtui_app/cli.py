@@ -2,8 +2,8 @@ from os import environ
 
 import click
 
-from .app import InspectApp
-from .ros import RosClient, RosEntityType
+from rtui_app.app import InspectApp
+from rtui_app.ros import RosClient, RosEntityType
 
 
 def is_ros2() -> bool:
@@ -60,8 +60,7 @@ def actions() -> None:
 
 
 @click.group(help="Inspect ROS types")
-def type() -> None:
-    ...
+def type() -> None: ...
 
 
 @click.command(name="msg", help="Inspect ROS message types")

@@ -45,7 +45,7 @@ def _flatten_node_info(
 
 
 def _flatten_name_types(
-    name_types: tuple[str, list[str]]
+    name_types: tuple[str, list[str]],
 ) -> t.Generator[tuple[str, str], None, None]:
     for name, types in name_types:
         if not types:
@@ -84,9 +84,9 @@ class Ros2(RosInterface):
             get_action_client_names_and_types_by_node
         )
 
-        executor = MultiThreadedExecutor()
-        executor.add_node(self.node)
-        self.thread = Thread(target=executor.spin, daemon=True)
+        self.executor = MultiThreadedExecutor()
+        self.executor.add_node(self.node)
+        self.thread = Thread(target=self.executor.spin, daemon=True)
         self.thread.start()
 
         sleep(0.01)
@@ -156,10 +156,10 @@ class Ros2(RosInterface):
         )
 
     def get_topic_types(self, topic_name: str) -> list[str]:
-        names_and_types: list[
-            tuple[str, list[str]]
-        ] = ros2topic.api.get_topic_names_and_types(
-            node=self.node, include_hidden_topics=True
+        names_and_types: list[tuple[str, list[str]]] = (
+            ros2topic.api.get_topic_names_and_types(
+                node=self.node, include_hidden_topics=True
+            )
         )
         for name, types in names_and_types:
             if name == topic_name:

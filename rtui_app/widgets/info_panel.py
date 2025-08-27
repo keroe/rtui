@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from textual.widgets import Static
 
-from ..event import RosEntitySelected
-from ..ros import RosClient, RosEntity
-from ..ros.exception import RosMasterException
+from rtui_app.event import RosEntitySelected
+from rtui_app.ros import RosClient, RosEntity
+from rtui_app.ros.exception import RosMasterException
 
 
 class RosEntityInfoPanel(Static):

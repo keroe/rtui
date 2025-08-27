@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from textual.message import Message
 
-from .ros import RosEntity, RosEntityType
+from rtui_app.ros import RosEntity, RosEntityType
 
 
 class RosEntitySelected(Message):

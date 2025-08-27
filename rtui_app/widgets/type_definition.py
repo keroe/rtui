@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from textual.widgets import Static
 
-from ..ros import RosClient, RosEntity
+from rtui_app.ros import RosClient, RosEntity
 
 
 class RosTypeDefinitionPanel(Static):

@@ -9,6 +9,8 @@ from .entity import (
     TopicInfo,
 )
 
+from .nodes import ROSBg
+
 __all__ = [
     "exception",
     "ActionInfo",
@@ -19,4 +21,5 @@ __all__ = [
     "RosInterface",
     "ServiceInfo",
     "TopicInfo",
+    "ROSBg",
 ]

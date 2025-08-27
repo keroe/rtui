@@ -3,8 +3,8 @@ from __future__ import annotations
 from textual.app import ComposeResult
 from textual.widgets import Static, Tree
 
-from ..event import RosEntitySelected
-from ..ros import RosClient, RosEntityType
+from rtui_app.event import RosEntitySelected
+from rtui_app.ros import RosClient, RosEntityType
 
 
 class RosEntityListPanel(Static):

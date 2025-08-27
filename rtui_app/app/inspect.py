@@ -6,10 +6,10 @@ from functools import partial
 from textual.app import App
 from textual.binding import Binding
 
-from ..event import RosEntitySelected
-from ..ros import RosClient, RosEntity, RosEntityType
-from ..screens import RosEntityInspection
-from ..utility import History
+from rtui_app.event import RosEntitySelected
+from rtui_app.ros import RosClient, RosEntity, RosEntityType
+from rtui_app.screens import RosEntityInspection
+from rtui_app.utility import History
 
 warnings.simplefilter("ignore", ResourceWarning)
 
