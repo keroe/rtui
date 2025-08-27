@@ -1,9 +1,50 @@
-import threading
-import rclpy
+from rosidl_runtime_py import message_to_yaml
 from rclpy.node import Node
-from rclpy.executors import SingleThreadedExecutor
 from ros2topic.verb.hz import ROSTopicHz
 from rosidl_runtime_py.utilities import get_message
+
+import queue
+
+
+class EchoNode(Node):
+    def __init__(self, topic: str):
+        super().__init__("auto_textual_echo")
+        self._topic = topic
+        self._sub = None
+        self.lines = queue.Queue(maxsize=1000)
+        self.create_timer(0.5, self._try_subscribe)
+
+    def _try_subscribe(self):
+        try:
+            names_types = dict(self.get_topic_names_and_types())
+        except Exception as e:
+            self.lines.put(f"[red]Graph query failed:[/red] {e!r}")
+            return
+
+        if self._topic not in names_types:
+            return  # keep polling
+
+        type_str = names_types[self._topic][0]
+        try:
+            msg_type = get_message(type_str)
+        except Exception as e:
+            self.lines.put(f"[red]Failed to import {type_str}:[/red] {e!r}")
+            return
+
+        if self._sub is None:
+            self._sub = self.create_subscription(msg_type, self._topic, self._cb, 10)
+            self.lines.put(
+                f"✅ Subscribed to [b]{self._topic}[/b] ([green]{type_str}[/green])"
+            )
+
+    def _cb(self, msg):
+        # Pretty print as YAML (same style as ros2 topic echo)
+        try:
+            text = message_to_yaml(msg).rstrip()
+        except Exception:
+            # fallback if YAML fails
+            text = repr(msg)
+        self.lines.put(text)
 
 
 class HzNode(Node):
@@ -87,16 +128,17 @@ class HzNode(Node):
 
 
 class ROSBg:
-    def __init__(self, topic: str, executor=None):
+    def __init__(self, topic: str, *, node_class: HzNode | EchoNode, executor=None):
         self.topic = topic
-        self.exec = executor  # shared executor from Ros2
+        self.exec = executor
         self.node = None
+        self.node_class = node_class
 
     def start(self):
         # Create node and add to shared executor
         if self.node is not None:
             return  # already started
-        self.node = HzNode(self.topic)
+        self.node = self.node_class(self.topic)
         if self.exec is not None:
             self.exec.add_node(self.node)
 
@@ -109,6 +151,8 @@ class ROSBg:
         self.node = None
 
     def get_node_status(self) -> str:
-        if self.node:
+        if isinstance(self.node, HzNode):
             return self.node.status
+        if isinstance(self.node, EchoNode):
+            return self.node.lines.get()
         return "Not started"
