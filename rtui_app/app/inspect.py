@@ -8,7 +8,7 @@ from textual.binding import Binding
 
 from rtui_app.event import RosEntitySelected
 from rtui_app.ros import RosClient, RosEntity, RosEntityType
-from rtui_app.screens import RosEntityInspection
+from rtui_app.screens import RosEntityInspection, OrphansScreen
 from rtui_app.utility import History
 
 warnings.simplefilter("ignore", ResourceWarning)
@@ -23,6 +23,8 @@ class InspectApp(App):
     BINDINGS = [
         Binding("b", "back", "Prev Page", key_display="b"),
         Binding("f", "forward", "Next Page", key_display="f"),
+        Binding("o", "show_orphans", "Show Orphans", key_display="o"),
+        Binding("i", "show_inspect", "Show Inspect", key_display="i"),
         Binding("r", "reload", "Reload", key_display="r"),
         Binding("q", "quit", "Quit", key_display="q"),
     ]
@@ -53,7 +55,19 @@ class InspectApp(App):
             self._history.append(entity)
 
     def on_mount(self) -> None:
+        self.install_screen(
+            RosEntityInspection(self._ros, self._init_target), name="inspect"
+        )
+        self.install_screen(OrphansScreen(self._ros), name="orphans")
+        self.push_screen("inspect")
+
         self.switch_mode(self._init_target.name)
+
+    def action_show_orphans(self):
+        self.push_screen("orphans")
+
+    def action_show_inspect(self):
+        self.push_screen("inspect")
 
     def action_forward(self) -> None:
         if entity := self._history.forward():

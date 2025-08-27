@@ -4,6 +4,7 @@ import typing as t
 from pathlib import Path
 from threading import Thread
 from time import sleep
+from dataclasses import dataclass
 
 import rclpy
 import ros2action.api
@@ -261,3 +262,70 @@ class Ros2(RosInterface):
 
     def list_action_types(self) -> list[str]:
         return _list_types_common(get_action_interfaces())
+
+    def find_orphaned_topics(
+        self, include_hidden: bool = True
+    ) -> tuple[list[OrphanTopic], list[OrphanTopic]]:
+        """
+        Returns (no_subscribers, no_publishers).
+        - no_subscribers: topics that have ≥1 publisher and 0 subscribers
+        - no_publishers: topics that have ≥1 subscriber and 0 publishers
+        """
+        # names & types from the graph
+        names_and_types = ros2topic.api.get_topic_names_and_types(
+            node=self.node, include_hidden_topics=include_hidden
+        )
+        # Build quick lookups of endpoints
+        no_subs: list[OrphanTopic] = []
+        no_pubs: list[OrphanTopic] = []
+
+        for name, types in names_and_types:
+            pubs_info = self.node.get_publishers_info_by_topic(name)
+            subs_info = self.node.get_subscriptions_info_by_topic(name)
+
+            pubs = [
+                TopicEndpoint(
+                    node=_get_full_path(pi.node_namespace, pi.node_name),
+                    type=pi.topic_type,
+                )
+                for pi in pubs_info
+            ]
+            subs = [
+                TopicEndpoint(
+                    node=_get_full_path(si.node_namespace, si.node_name),
+                    type=si.topic_type,
+                )
+                for si in subs_info
+            ]
+
+            if pubs and not subs:
+                no_subs.append(
+                    OrphanTopic(
+                        name=name, types=types, publishers=pubs, subscribers=subs
+                    )
+                )
+            elif subs and not pubs:
+                no_pubs.append(
+                    OrphanTopic(
+                        name=name, types=types, publishers=pubs, subscribers=subs
+                    )
+                )
+
+        return no_subs, no_pubs
+
+
+# in your Ros2 class file
+
+
+@dataclass
+class TopicEndpoint:
+    node: str
+    type: str | None
+
+
+@dataclass
+class OrphanTopic:
+    name: str
+    types: list[str]  # all advertised/known types
+    publishers: list[TopicEndpoint]
+    subscribers: list[TopicEndpoint]
