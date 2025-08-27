@@ -38,6 +38,8 @@ class RosEntityMonitorPanel(Vertical):
 
 
 class EchoLog(Vertical):
+    CSS = "Log { border: round $accent; height: 100%; }"
+
     def __init__(self, ros: RosClient, entity: RosEntity | None = None) -> None:
         super().__init__()
         self._ros = ros
