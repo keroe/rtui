@@ -12,9 +12,22 @@ class EchoNode(Node):
         self._topic = topic
         self._sub = None
         self.lines = queue.Queue(maxsize=1000)
-        self.create_timer(0.5, self._try_subscribe)
+        self._timer = self.create_timer(0.0001, self._try_subscribe)
+
+    def set_topic(self, topic: str):
+        if topic == self._topic:
+            return
+        self._topic = topic
+        # Remove old subscription if exists
+        if self._sub is not None:
+            self.destroy_subscription(self._sub)
+            self._sub = None
+        self.lines.put(f"[yellow]Switching to topic:[/yellow] {topic}")
+        # Timer will handle resubscription
 
     def _try_subscribe(self):
+        if self._sub:
+            return
         try:
             names_types = dict(self.get_topic_names_and_types())
         except Exception as e:
@@ -60,21 +73,31 @@ class HzNode(Node):
         self._topic = topic
         self._hz = ROSTopicHz(self, window_size=self.WINDOW_SIZE)
         self._sub = None
-
-        # 1) Start polling for the topic type
-        self._start_time = self.get_clock().now().nanoseconds / 1e9
-        self._type_timer = self.create_timer(
+        self._timer = self.create_timer(
             self.TYPE_POLL_PERIOD, self._try_setup_subscription
         )
-
-        # 2) Timer to push Hz status (works once subscription exists)
         self._hz_timer = self.create_timer(self.HZ_UPDATE_PERIOD, self._emit_status)
+        self._start_time = self.get_clock().now().nanoseconds / 1e9
         self.status = f"📡 [b]{self._topic}[/b]\n[yellow]⏳ Waiting for messages…[/yellow]\n[dim]🪟 window:[/dim] {self.WINDOW_SIZE:5d}"
+
+    def set_topic(self, topic: str):
+        if topic == self._topic:
+            return
+        self._topic = topic
+        self._start_time = self.get_clock().now().nanoseconds / 1e9
+        # Remove old subscription if exists
+        if self._sub is not None:
+            self.destroy_subscription(self._sub)
+            self._sub = None
+        self.status = f"📡 [b]{self._topic}[/b]\n[yellow]⏳ Waiting for messages…[/yellow]\n[dim]🪟 window:[/dim] {self.WINDOW_SIZE:5d}"
+        # Timer will handle resubscription
 
     def _push_status(self, msg: str):
         self.status = msg
 
     def _try_setup_subscription(self):
+        if self._sub:
+            return
         # Optional timeout
         if self.TYPE_POLL_TIMEOUT:
             now = self.get_clock().now().nanoseconds / 1e9
@@ -82,7 +105,6 @@ class HzNode(Node):
                 self._push_status(
                     f"[red]Timeout[/red]: topic '{self._topic}' not found."
                 )
-                self.destroy_timer(self._type_timer)
                 return
 
         try:
@@ -110,7 +132,6 @@ class HzNode(Node):
             self._push_status(
                 f"📡 [b]{self._topic}[/b]\n[green]✅ Subscribed[/green] ({type_str}). Waiting for messages…"
             )
-            self.destroy_timer(self._type_timer)  # stop polling
 
     def _emit_status(self):
         res = self._hz.get_hz()
@@ -118,11 +139,11 @@ class HzNode(Node):
             hz, mn, mx, std, win = res
             status = (
                 f"📡 [b]{self._topic}[/b]\n"
-                f"⚡ Rate: {" ":>7}[b]{hz*1e9:.6f} Hz[/b]\n"
-                f"🔽 min Δt: {" ":>5}{mn/1e9:.6f} s\n"
-                f"🔼 max Δt: {" ":>5}{mx/1e9:.6f} s\n"
-                f"📊 std Δt: {" ":>5}{std/1e9:.6f} s\n"
-                f"🪟 window: {" ":>5}{win}"
+                f"⚡ Rate: {' ':>7}[b]{hz * 1e9:.6f} Hz[/b]\n"
+                f"🔽 min Δt: {' ':>5}{mn / 1e9:.6f} s\n"
+                f"🔼 max Δt: {' ':>5}{mx / 1e9:.6f} s\n"
+                f"📊 std Δt: {' ':>5}{std / 1e9:.6f} s\n"
+                f"🪟 window: {' ':>5}{win}"
             )
             self._push_status(status)
 

@@ -66,10 +66,12 @@ class EchoLog(Vertical):
 
     def update_content(self):
         self._topic = self._entity.name if self._entity else "N/A"
-        if self._topic:
-            log = self.query_one(Log)
-            log.clear()
-            log.write_line(f"Starting echo for {self._topic}...")
+        log = self.query_one(Log)
+        log.clear()
+        log.write_line(f"Starting echo for {self._topic}...")
+        if self.echo_ros_node:
+            self.echo_ros_node.node.set_topic(self._topic)
+        else:
             self._start_ros()
 
     def on_unmount(self) -> None:
@@ -111,8 +113,10 @@ class HzMonitor(VerticalGroup):
 
     def update_content(self):
         self._topic = self._entity.name if self._entity else "N/A"
-        if self._topic:
-            self.hz_display.update(f"Starting monitor for {self._topic}...")
+        self.hz_display.update(f"Starting monitor for {self._topic}...")
+        if self.hz_ros_node:
+            self.hz_ros_node.node.set_topic(self._topic)
+        else:
             self._start_ros()
 
     def on_unmount(self) -> None:
