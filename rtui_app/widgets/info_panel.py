@@ -12,8 +12,6 @@ class RosEntityInfoPanel(Static):
     _entity: RosEntity | None = None
     _update_interval: float | None = None
 
-    CSS_PATH = "css/info_panel.css"
-
     def __init__(
         self,
         ros: RosClient,

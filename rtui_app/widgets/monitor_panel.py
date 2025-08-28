@@ -9,6 +9,8 @@ from rtui_app.ros.nodes import EchoNode, HzNode
 
 
 class RosEntityMonitorPanel(Vertical):
+    CSS_PATH = "css/monitor_panel.css"
+
     def __init__(self, ros: RosClient, entity: RosEntity | None = None) -> None:
         super().__init__()
         self._ros = ros
@@ -38,8 +40,6 @@ class RosEntityMonitorPanel(Vertical):
 
 
 class EchoLog(Vertical):
-    CSS = "Log { border: round $accent; height: 100%; }"
-
     def __init__(self, ros: RosClient, entity: RosEntity | None = None) -> None:
         super().__init__()
         self._ros = ros
@@ -94,7 +94,7 @@ class HzMonitor(VerticalGroup):
         self.hz_ros_node = None
 
     def compose(self) -> ComposeResult:
-        self.hz_display = Static("Starting...")
+        self.hz_display = Static("Select topic.")
         yield self.hz_display
 
     def on_mount(self):

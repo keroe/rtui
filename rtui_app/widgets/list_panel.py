@@ -8,6 +8,7 @@ from rtui_app.ros import RosClient, RosEntityType
 
 
 class RosEntityListPanel(Static):
+    CSS_PATH = "list_panel.css"
     _ros: RosClient
     _entity_type: RosEntityType
     _tree: Tree[str]
