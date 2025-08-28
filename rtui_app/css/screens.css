@@ -1,0 +1,37 @@
+.container {
+    height: 100%;
+    background: $panel;
+}
+
+RosEntityListPanel {
+    padding-left: 2;
+    width: 30%;
+}
+
+#main {
+    border-left: inner $primary;
+}
+
+#main-upper {
+    border-bottom: inner $primary;
+}
+
+.main-half {
+    height: 50%;
+}
+
+Screen {
+  layout: vertical;
+}
+
+#root {
+  padding: 1 2;
+}
+
+#root Horizontal {
+  height: 1fr;
+}
+
+#root DataTable {
+  border: round $accent;
+}

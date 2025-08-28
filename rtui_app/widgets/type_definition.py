@@ -9,11 +9,7 @@ class RosTypeDefinitionPanel(Static):
     _ros: RosClient
     _entity: RosEntity | None = None
 
-    DEFAULT_CSS = """
-    RosTypeDefinitionPanel {
-        padding: 1 2;
-    }
-    """
+    CSS_PATH = "css/type_definition.css"
 
     def __init__(
         self,

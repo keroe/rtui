@@ -22,29 +22,7 @@ class RosEntityInspection(Screen):
     _definition_panel: RosTypeDefinitionPanel | None = None
     _monitor_panel: RosEntityMonitorPanel | None = None
 
-    DEFAULT_CSS = """
-    .container {
-        height: 100%;
-        background: $panel;
-    }
-
-    RosEntityListPanel {
-        padding-left: 2;
-        width: 30%;
-    }
-
-    #main {
-        border-left: inner $primary;
-    }
-
-    #main-upper {
-        border-bottom: inner $primary;
-    }
-
-    .main-half {
-        height: 50%;
-    }
-    """
+    CSS_PATH = "css/screens.css"
 
     def __init__(self, ros: RosClient, entity_type: RosEntityType) -> None:
         super().__init__()
@@ -95,27 +73,7 @@ class RosEntityInspection(Screen):
 
 
 class OrphansScreen(Screen):
-    CSS = """
-Screen {
-  layout: vertical;
-}
-
-#root {
-  padding: 1 2;
-}
-
-#root Horizontal {
-  height: 1fr;
-}
-
-#root DataTable {
-  border: round $accent;
-}
-"""
-    BINDINGS = [
-        ("i", "go_inspect", "Inspect"),
-        ("q", "app.quit", "Quit"),
-    ]
+    CSS_PATH = "css/screens.css"
 
     def __init__(self, ros: "Ros2"):
         super().__init__()
@@ -126,6 +84,7 @@ Screen {
         self._status: Static | None = None
 
     def compose(self) -> ComposeResult:
+        yield Footer()
         with Vertical(id="root"):
             self._status = Static("Finding orphaned topics…")
             yield self._status

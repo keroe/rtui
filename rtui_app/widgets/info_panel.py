@@ -12,11 +12,7 @@ class RosEntityInfoPanel(Static):
     _entity: RosEntity | None = None
     _update_interval: float | None = None
 
-    DEFAULT_CSS = """
-    RosEntityInfoPanel {
-        padding: 1 2;
-    }
-    """
+    CSS_PATH = "css/info_panel.css"
 
     def __init__(
         self,
