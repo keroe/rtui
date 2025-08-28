@@ -6,6 +6,23 @@
 RosEntityListPanel {
     padding-left: 2;
     width: 30%;
+    /* Add any custom styles for the list panel here */
+}
+
+RosEntityInfoPanel {
+    padding: 1 2 2 1;
+    width: 70%;
+    /* Add any custom styles for the info panel here */
+}
+
+RosEntityMonitorPanel {
+    padding: 0 1;
+    width: 100%;
+    Log {
+        height: 100%;
+        border: round $primary;
+    }
+    /* Add any custom styles for the monitor panel here */
 }
 
 #main {
